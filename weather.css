@@ -1,0 +1,196 @@
+@import url('https://fonts.googleapis.com/css2?family=Asimovian&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Asimovian&family=Bungee&display=swap');
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    background-color: rgb(0, 0, 0);
+}
+
+#search-container{
+    justify-content: center;
+    display: flex;
+    position: absolute;
+    height: 800px;
+    width: 700px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: url(images/cities/tokyo.png) no-repeat fixed;
+    background-position: 0 50rem;
+    backdrop-filter: blur(25px);
+    background-size: cover;
+    border-radius: 50px;
+}
+
+#search{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 70px;
+    height: 70px;
+    font-size: 36px;
+    color: rgba(255, 255, 255, 0.774);
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.623);
+    border: 3px solid rgb(255, 255, 255);
+    position: relative;
+    z-index: 25;
+}
+
+#search-zone{
+    font-family: "Asimovian", sans-serif;
+    font-size: 25px;
+    width: 500px;
+    height: 70px;
+    text-align: center;
+    border-radius: 25px;
+    cursor: auto;
+    color: rgba(255, 255, 255, 0.774);
+    background-color: rgba(0, 0, 0, 0.623);
+    border: 3px solid rgb(255, 255, 255);
+}
+
+#search-zone::placeholder{
+    text-align: center;
+    font-family: "Asimovian", sans-serif;
+    color: rgba(255, 255, 255, 0.774);
+    transition: 0.5s ease;
+}
+
+#search-zone:focus,#search:focus{
+    outline: none;
+}
+
+#search-zone:focus::placeholder{
+    font-size: 18px;
+    transform: translate(-170px,-15px);
+    transition: 0.5s ease;
+    color: rgba(255, 255, 255, 0.774);
+}
+
+#search-container::before {
+    border-radius:555px ;
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 50%;
+    height: 30%;
+    background: rgba(255,255,255,0.2);
+    pointer-events: none;
+    z-index: 1;
+    animation: mistMove 60s linear infinite;
+}
+
+
+#glass{
+    justify-content: center;
+    align-items: center;
+    width: 700px;
+    height: 200px;
+    border: 2px solid rgb(255, 255, 255);
+    border-radius: 50px 50px 0 0;
+    background-color: rgba(0, 0, 0, 0.459);
+    backdrop-filter: blur(5px);
+    gap: 25px;
+    display: flex;
+    transition: 1s cubic-bezier(0,1.08,1,-0.16);
+    position: relative;
+    z-index: 25;
+}
+
+#weather{
+    color: rgb(255, 255, 255);
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -150px;
+    display: none;
+    font-family: "Asimovian", sans-serif;
+}
+
+#fahrenheit{
+    font-size: 25px;
+    color: rgba(255, 255, 255, 0.705);
+    border: 3px solid rgba(255, 255, 255, 0.705);
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+}
+
+
+.temp{
+    font-size: 85px;
+    color: rgba(255, 255, 255, 0.836);
+    display: flex;
+}
+
+.city{
+    font-size: 35px;
+}
+
+.details{
+    display: flex;
+    gap: 280px;
+    margin-top: -150px;
+}
+
+
+#wind{
+    margin-left: 20px;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#humidity{
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#humidity h3{
+    font-size: 18px;
+}
+
+#humidity h2{
+    font-size:35px;
+}
+
+#wind h3{
+    font-size: 18px;
+}
+
+#wind h2{
+    font-size: 35px;
+}
+
+::selection{
+    background-color: transparent;
+}
+
+
+@keyframes mistMove {
+    0% { transform: translate(310px,500px); }
+    50% { transform: translate(10px,320px); }
+    75% { transform: translate(320px,200px); }
+    100% { transform: translate(310px, 500px); }
+}
+
+#information{
+    font-family: "Bungee", sans-serif;
+    color: white;
+    justify-content: center;
+    margin-top: 65px;
+    font-size: 35px;
+    display: flex;
+    transition: 0.5s ease;
+}
