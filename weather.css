@@ -12,6 +12,12 @@ body{
     background-color: rgb(0, 0, 0);
 }
 
+#error{
+    font-family: "Bungee", sans-serif;
+    font-size: 55px;
+    display: none;
+}
+
 #search-container{
     justify-content: center;
     display: flex;
@@ -41,6 +47,7 @@ body{
     border: 3px solid rgb(255, 255, 255);
     position: relative;
     z-index: 25;
+    cursor: pointer;
 }
 
 #search-zone{
