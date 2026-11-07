@@ -15,8 +15,7 @@ const cityImages = new Set([
     "toronto", "vienna", "vilnius", "barcelona"
 ]);
 
-const weatherApiKey = "4314b06c84c18639fe0ba8163a802158";
-const weatherUrl = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+const requestTimeoutMs = 8000;
 let showingResult = false;
 
 searchZone.addEventListener("focus", expandSearch);
@@ -48,16 +47,16 @@ async function handleSearch(event) {
     setLoadingState();
 
     try {
-        const data = await callWeather(city);
-        renderWeather(data);
-
-        const imageKey = city.replace(/\s/g, "").toLowerCase();
-        if (cityImages.has(imageKey)) {
-            setBackground("images/cities/" + imageKey + ".png");
-        } else {
-            await setRegionalBackground(city);
-        }
+        const location = await findCity(city);
+        const currentWeather = await getCurrentWeather(location);
+        renderWeather(location, currentWeather);
+        updateBackground(city, location);
     } catch (error) {
+        if (error.name === "AbortError") {
+            showError("The request timed out. Please try again.");
+            return;
+        }
+
         showError(error.message || "Weather information could not be loaded.");
     }
 }
@@ -86,61 +85,72 @@ function resetSearch() {
     searchZone.focus();
 }
 
-async function callWeather(city) {
-    let response;
+async function findCity(city) {
+    const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
+    url.search = new URLSearchParams({
+        name: city,
+        count: "1",
+        language: "en",
+        format: "json"
+    });
 
-    try {
-        response = await fetch(
-            weatherUrl + encodeURIComponent(city) + "&appid=" + weatherApiKey
-        );
-    } catch (error) {
-        throw new Error("Network error. Check your connection and try again.");
+    const data = await fetchJson(url);
+    if (!data.results || !data.results.length) {
+        throw new Error("Enter a valid city.");
     }
 
-    if (!response.ok) {
-        if (response.status === 404) {
-            throw new Error("Enter a valid city.");
-        }
-        if (response.status === 401) {
-            throw new Error("Weather service authentication failed.");
-        }
-        throw new Error("Weather service is unavailable. Try again later.");
-    }
+    return data.results[0];
+}
 
-    const data = await response.json();
-    if (!data.main || !data.wind || !data.weather || !data.weather.length) {
+async function getCurrentWeather(location) {
+    const url = new URL("https://api.open-meteo.com/v1/forecast");
+    url.search = new URLSearchParams({
+        latitude: String(location.latitude),
+        longitude: String(location.longitude),
+        current: "temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m",
+        wind_speed_unit: "kmh",
+        timezone: "auto"
+    });
+
+    const data = await fetchJson(url);
+    if (!data.current) {
         throw new Error("Weather service returned incomplete data.");
     }
 
-    return data;
+    return data.current;
 }
 
-function renderWeather(data) {
+async function fetchJson(url, timeoutMs = requestTimeoutMs) {
+    const controller = new AbortController();
+    const timeout = setTimeout(function () {
+        controller.abort();
+    }, timeoutMs);
+
+    try {
+        const response = await fetch(url, { signal: controller.signal });
+        if (!response.ok) {
+            throw new Error("Weather service is unavailable. Try again later.");
+        }
+        return await response.json();
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
+function renderWeather(location, current) {
+    const presentation = WeatherUtils.getWeatherPresentation(current.weather_code);
+
     errorMessage.style.display = "none";
     icon.style.display = "block";
     details.style.display = "flex";
-
-    document.querySelector(".city").textContent = data.name;
-    document.querySelector(".temp").textContent = Math.round(data.main.temp) + "°C";
-    document.getElementById("humiditylvl").textContent = data.main.humidity + "%";
+    document.querySelector(".city").textContent = location.name;
+    document.querySelector(".temp").textContent = Math.round(current.temperature_2m) + "°C";
+    document.getElementById("humiditylvl").textContent =
+        Math.round(current.relative_humidity_2m) + "%";
     document.getElementById("windspeed").textContent =
-        Math.round(data.wind.speed * 3.6) + " km/h";
-
-    const condition = data.weather[0].main;
-    const icons = {
-        Clear: "clear.png",
-        Clouds: "clouds.png",
-        Drizzle: "drizzle.png",
-        Rain: "rain.png",
-        Snow: "snow.png",
-        Mist: "mist.png",
-        Fog: "mist.png",
-        Haze: "mist.png",
-        Smoke: "mist.png"
-    };
-
-    icon.src = "images/props/" + (icons[condition] || "clouds.png");
-    icon.alt = condition + " weather";
+        Math.round(current.wind_speed_10m) + " km/h";
+    icon.src = "images/props/" + presentation.icon;
+    icon.alt = presentation.description;
 }
 
 function showError(message) {
@@ -158,63 +168,37 @@ function setBackground(path) {
     searchContainer.style.backgroundSize = "cover";
 }
 
-async function setRegionalBackground(city) {
+function updateBackground(city, location) {
+    const imageKey = city.replace(/\s/g, "").toLowerCase();
+    if (cityImages.has(imageKey)) {
+        setBackground("images/cities/" + imageKey + ".png");
+        return;
+    }
+
+    setRegionalBackground(location);
+}
+
+async function setRegionalBackground(location) {
+    if (!location.country_code) {
+        return;
+    }
+
     try {
-        const geoUrl =
-            "https://secure.geonames.org/searchJSON?q=" +
-            encodeURIComponent(city) +
-            "&maxRows=1&username=1chin0ok";
-        const geoResponse = await fetch(geoUrl);
+        const url = new URL(
+            "https://restcountries.com/v3.1/alpha/" + encodeURIComponent(location.country_code)
+        );
+        url.searchParams.set("fields", "continents");
+        const country = await fetchJson(url, 5000);
+        const continent = country.continents && country.continents[0];
+        const region = WeatherUtils.getRegionName(continent);
 
-        if (!geoResponse.ok) {
-            return;
-        }
-
-        const geoData = await geoResponse.json();
-        if (!geoData.geonames || !geoData.geonames.length) {
-            return;
-        }
-
-        const cityInfo = geoData.geonames[0];
-        const continent = await getContinent(cityInfo.countryCode);
-        const region = getRegionName(continent);
         if (!region) {
             return;
         }
 
-        const size = getCitySize(region, Number(cityInfo.population) || 0);
+        const size = WeatherUtils.getCitySize(region, location.population);
         setBackground("images/cities/" + size + region + ".png");
     } catch (error) {
         console.warn("Regional background could not be loaded.", error);
     }
-}
-
-async function getContinent(countryCode) {
-    const response = await fetch(
-        "https://restcountries.com/v3.1/alpha/" +
-        encodeURIComponent(countryCode) +
-        "?fields=continents"
-    );
-
-    if (!response.ok) {
-        throw new Error("Country information could not be loaded.");
-    }
-
-    const data = await response.json();
-    return data.continents && data.continents[0] ? data.continents[0] : "";
-}
-
-function getRegionName(continent) {
-    if (continent.includes("America")) return "America";
-    if (continent.includes("Asia")) return "Asia";
-    if (continent.includes("Africa")) return "Africa";
-    if (continent.includes("Europe")) return "Europe";
-    return "";
-}
-
-function getCitySize(region, population) {
-    const smallLimit = region === "Asia" ? 300000 : 100000;
-    if (population < smallLimit) return "small";
-    if (population < 1500000) return "mid";
-    return "big";
 }
