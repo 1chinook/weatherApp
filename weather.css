@@ -1,203 +1,249 @@
-@import url('https://fonts.googleapis.com/css2?family=Asimovian&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Asimovian&family=Bungee&display=swap');
 
-
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body{
-    background-color: rgb(0, 0, 0);
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-color: #000;
 }
 
-#error{
-    font-family: "Bungee", sans-serif;
-    font-size: 55px;
-    display: none;
+button,
+input {
+    font: inherit;
 }
 
-#search-container{
-    justify-content: center;
-    display: flex;
+.sr-only {
     position: absolute;
-    height: 800px;
-    width: 700px;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+#information {
+    display: flex;
+    justify-content: center;
+    margin-top: 65px;
+    padding: 0 16px;
+    color: #fff;
+    font: 35px "Bungee", sans-serif;
+    text-align: center;
+    transition: margin 0.5s ease;
+}
+
+#search-container {
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%,-50%);
-    background: url(images/cities/tokyo.png) no-repeat fixed;
-    background-position: 0 50rem;
-    backdrop-filter: blur(25px);
-    background-size: cover;
+    display: flex;
+    justify-content: center;
+    width: min(700px, calc(100vw - 32px));
+    height: min(800px, calc(100vh - 140px));
+    min-height: 520px;
+    overflow: hidden;
+    transform: translate(-50%, -50%);
+    background: url(images/cities/tokyo.png) center / cover no-repeat;
     border-radius: 50px;
 }
 
-#search{
-    justify-content: center;
-    align-items: center;
-    display: flex;
-    width: 70px;
-    height: 70px;
-    font-size: 36px;
-    color: rgba(255, 255, 255, 0.774);
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.623);
-    border: 3px solid rgb(255, 255, 255);
-    position: relative;
-    z-index: 25;
-    cursor: pointer;
-}
-
-#search-zone{
-    font-family: "Asimovian", sans-serif;
-    font-size: 25px;
-    width: 500px;
-    height: 70px;
-    text-align: center;
-    border-radius: 25px;
-    cursor: auto;
-    color: rgba(255, 255, 255, 0.774);
-    background-color: rgba(0, 0, 0, 0.623);
-    border: 3px solid rgb(255, 255, 255);
-}
-
-#search-zone::placeholder{
-    text-align: center;
-    font-family: "Asimovian", sans-serif;
-    color: rgba(255, 255, 255, 0.774);
-    transition: 0.5s ease;
-}
-
-#search-zone:focus,#search:focus{
-    outline: none;
-}
-
-#search-zone:focus::placeholder{
-    font-size: 18px;
-    transform: translate(-170px,-15px);
-    transition: 0.5s ease;
-    color: rgba(255, 255, 255, 0.774);
-}
-
 #search-container::before {
-    border-radius:555px ;
-    content: '';
+    content: "";
     position: absolute;
-    top: 0; left: 0;
     width: 50%;
     height: 30%;
-    background: rgba(255,255,255,0.2);
+    border-radius: 555px;
+    background: rgba(255, 255, 255, 0.2);
     pointer-events: none;
     z-index: 1;
     animation: mistMove 60s linear infinite;
 }
 
-
-#glass{
-    justify-content: center;
-    align-items: center;
-    width: 700px;
-    height: 200px;
-    border: 2px solid rgb(255, 255, 255);
-    border-radius: 50px 50px 0 0;
-    background-color: rgba(0, 0, 0, 0.459);
-    backdrop-filter: blur(5px);
-    gap: 25px;
-    display: flex;
-    transition: 1s cubic-bezier(0,1.08,1,-0.16);
+#glass {
     position: relative;
-    z-index: 25;
-}
-
-#weather{
-    color: rgb(255, 255, 255);
-    justify-content: center;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: -150px;
+    justify-content: center;
+    gap: 28px;
+    width: 100%;
+    height: 200px;
+    padding: 28px;
+    border: 2px solid #fff;
+    border-radius: 50px 50px 0 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    transition: height 0.7s ease;
+}
+
+#search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    width: 100%;
+}
+
+#search-zone {
+    width: min(500px, calc(100% - 95px));
+    height: 70px;
+    padding: 0 24px;
+    border: 3px solid #fff;
+    border-radius: 25px;
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.62);
+    font: 25px "Asimovian", sans-serif;
+    text-align: center;
+}
+
+#search-zone::placeholder {
+    color: rgba(255, 255, 255, 0.78);
+}
+
+#search-zone:focus,
+#search:focus-visible {
+    outline: 3px solid #8ed8ff;
+    outline-offset: 3px;
+}
+
+#search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 70px;
+    width: 70px;
+    height: 70px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.62);
+    font-size: 36px;
+    cursor: pointer;
+}
+
+#weather {
     display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #fff;
     font-family: "Asimovian", sans-serif;
+    text-align: center;
 }
 
-#fahrenheit{
-    font-size: 25px;
-    color: rgba(255, 255, 255, 0.705);
-    border: 3px solid rgba(255, 255, 255, 0.705);
-    border-top: none;
-    border-right: none;
-    border-bottom: none;
+#error {
+    display: none;
+    max-width: 600px;
+    font: 42px "Bungee", sans-serif;
 }
 
+.weather-icon {
+    width: min(220px, 45vw);
+    height: auto;
+}
 
-.temp{
-    font-size: 85px;
-    color: rgba(255, 255, 255, 0.836);
+.temp {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: clamp(58px, 10vw, 85px);
+}
+
+.city {
+    font-size: clamp(28px, 6vw, 35px);
+}
+
+.details {
     display: flex;
-}
-
-.city{
-    font-size: 35px;
-}
-
-.details{
-    display: flex;
-    gap: 280px;
-    margin-top: -150px;
-}
-
-
-#wind{
-    margin-left: 20px;
     justify-content: center;
+    gap: clamp(50px, 18vw, 180px);
+    margin-top: 28px;
+}
+
+#wind,
+#humidity {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#humidity{
-    justify-content: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+#humidity h2,
+#wind h2 {
+    font-size: clamp(22px, 5vw, 35px);
 }
 
-#humidity h3{
+#humidity h3,
+#wind h3 {
     font-size: 18px;
 }
 
-#humidity h2{
-    font-size:35px;
+::selection {
+    background-color: rgba(142, 216, 255, 0.35);
 }
-
-#wind h3{
-    font-size: 18px;
-}
-
-#wind h2{
-    font-size: 35px;
-}
-
-::selection{
-    background-color: transparent;
-}
-
 
 @keyframes mistMove {
-    0% { transform: translate(310px,500px); }
-    50% { transform: translate(10px,320px); }
-    75% { transform: translate(320px,200px); }
+    0% { transform: translate(310px, 500px); }
+    50% { transform: translate(10px, 320px); }
+    75% { transform: translate(320px, 200px); }
     100% { transform: translate(310px, 500px); }
 }
 
-#information{
-    font-family: "Bungee", sans-serif;
-    color: white;
-    justify-content: center;
-    margin-top: 65px;
-    font-size: 35px;
-    display: flex;
-    transition: 0.5s ease;
+@media (max-width: 600px) {
+    #information {
+        margin-top: 24px;
+        font-size: 20px;
+    }
+
+    #search-container {
+        top: calc(50% + 20px);
+        min-height: 470px;
+        border-radius: 28px;
+    }
+
+    #glass {
+        padding: 20px;
+        border-radius: 28px 28px 0 0;
+    }
+
+    #search-form {
+        gap: 12px;
+    }
+
+    #search-zone {
+        width: calc(100% - 68px);
+        height: 56px;
+        padding: 0 12px;
+        font-size: 18px;
+    }
+
+    #search {
+        flex-basis: 56px;
+        width: 56px;
+        height: 56px;
+        font-size: 28px;
+    }
+
+    #error {
+        font-size: 28px;
+    }
+
+    .details {
+        gap: 35px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before {
+        animation: none !important;
+        transition: none !important;
+    }
 }
